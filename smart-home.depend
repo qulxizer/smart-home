@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1795412781source:/Users/mahdi/Dev/en6001/project/smart-home/main.cpp
+	<iostream>
+
+1795382335/Users/mahdi/Dev/en6001/project/smart-home/menus/main_menu.h
+
+1795383795source:/Users/mahdi/Dev/en6001/project/smart-home/menus/main_menu.cpp
+	<iostream>
+
