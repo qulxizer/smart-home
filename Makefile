@@ -1,4 +1,10 @@
+.PHONY: build-run build run
+
+build-run: build run
+
 build:
-	g++ main.cpp -o app
+	mkdir -p build/
+	g++ main.cpp -o ./build/app
+
 run:
-	./app
+	./build/app
