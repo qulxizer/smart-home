@@ -1,16 +1,43 @@
 #include <ctime>
 #include <iostream>
+#include <vector>
+
 using namespace std;
 
+struct Device {
+  string Name;
+  bool Status;
+  int PowerConsumption;
+};
+
+struct Room {
+  int ID;
+  Device Devices[4];
+};
+
+bool isInRange(int choice, int max) {
+  if (choice > 0 || choice < max) {
+    return true;
+  }
+  return false;
+}
+
 int MainMenu();
+int EnterRoomNumber();
 bool Authenticate_User();
 int SettingsMenu();
 int InitializeMenu();
 int ModeSelectionMenu();
+int SelectRoom(vector<Room> Rooms);
+
 void App() {
+
+  vector<Room> Rooms = {};
+
   int choice = MainMenu();
   if (choice < 1 || choice > 4) {
     cout << "Please select a choice between 1-4" << endl;
+    return;
   }
   if (choice == 1) {
     if (Authenticate_User() == false) {
@@ -18,9 +45,26 @@ void App() {
               "incorrect entry of password";
       App();
     }
+    // User is authed
+
     choice = SettingsMenu();
     if (choice == 1 || choice == 2) {
-      choice = InitializeMenu();
+      while (true) {
+        choice = InitializeMenu();
+        // cout << "Initialize Menu choice :" << choice << endl;
+        if (choice == 1) {
+          int NRooms = EnterRoomNumber();
+          for (int i = 0; i < NRooms; i++) {
+            Room room = {};
+            room.ID = i;
+            Rooms.push_back(room);
+          }
+        }
+        if (choice == 2) {
+          int room = SelectRoom(Rooms);
+          cout << room;
+        }
+      }
     }
     if (choice == 3) {
       choice = ModeSelectionMenu();
@@ -103,4 +147,35 @@ int InitializeMenu() {
   cout << "3. Exit" << endl;
   cin >> choice;
   return choice;
+}
+// Return the number of rooms
+int EnterRoomNumber() {
+  int Num;
+  cout << "Enter the number of rooms" << endl;
+  cin >> Num;
+  return Num;
+}
+
+int EnterNumberOfDevices() {
+  int Num;
+  cout << "Enter the number of devices" << endl;
+  cin >> Num;
+  return Num;
+}
+
+int EnterDevice() {
+  int Num;
+  cout << "Enter the number of rooms" << endl;
+  cin >> Num;
+  return Num;
+}
+
+int SelectRoom(vector<Room> Rooms) {
+  int Num;
+  cout << "Select the room" << endl;
+  for (int i = 1; i <= Rooms.size(); i++) {
+    cout << "Room " << i << endl;
+  }
+  cin >> Num;
+  return Num;
 }
