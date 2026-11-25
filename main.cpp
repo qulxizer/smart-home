@@ -26,9 +26,9 @@ int MainMenu();
 int EnterRoomNumber();
 bool Authenticate_User();
 int SettingsMenu();
-int InitializeMenu();
+void InitializeMenu(vector<Room> Rooms);
 int ModeSelectionMenu();
-int SelectRoom(vector<Room> Rooms);
+void SelectRoom(vector<Room> *Rooms);
 
 void App() {
 
@@ -49,22 +49,7 @@ void App() {
 
     choice = SettingsMenu();
     if (choice == 1 || choice == 2) {
-      while (true) {
-        choice = InitializeMenu();
-        // cout << "Initialize Menu choice :" << choice << endl;
-        if (choice == 1) {
-          int NRooms = EnterRoomNumber();
-          for (int i = 0; i < NRooms; i++) {
-            Room room = {};
-            room.ID = i;
-            Rooms.push_back(room);
-          }
-        }
-        if (choice == 2) {
-          int room = SelectRoom(Rooms);
-          cout << room;
-        }
-      }
+      InitializeMenu(Rooms);
     }
     if (choice == 3) {
       choice = ModeSelectionMenu();
@@ -138,15 +123,36 @@ int ModeSelectionMenu() {
   return choice;
 }
 
-int InitializeMenu() {
+void InitializeMenu(vector<Room> Rooms) {
   int choice = 0;
-  cout << "Mode Initialize Menu" << endl;
-  cout << "Press" << endl;
-  cout << "1. Add number of rooms" << endl;
-  cout << "2. Add device" << endl;
-  cout << "3. Exit" << endl;
-  cin >> choice;
-  return choice;
+  while (choice != 3) {
+    cout << "Mode Initialize Menu" << endl;
+    cout << "Press" << endl;
+    cout << "1. Add number of rooms" << endl;
+    cout << "2. Add device" << endl;
+    cout << "3. Exit" << endl;
+    cin >> choice;
+    if (choice == 1) {
+      Rooms.clear();
+      int NRooms = EnterRoomNumber();
+      for (int i = 0; i < NRooms; i++) {
+        Room room = {};
+        room.ID = i;
+        Rooms.push_back(room);
+      }
+    }
+    if (choice == 2) {
+      SelectRoom(&Rooms);
+      // cout << room;
+    }
+
+    if (choice == 3) {
+      for (auto i : Rooms)
+        cout << i.Devices->PowerConsumption << " ";
+      SelectRoom(&Rooms);
+      // cout << room;
+    }
+  }
 }
 // Return the number of rooms
 int EnterRoomNumber() {
@@ -170,12 +176,35 @@ int EnterDevice() {
   return Num;
 }
 
-int SelectRoom(vector<Room> Rooms) {
-  int Num;
+void SelectRoom(vector<Room> *Rooms) {
+  int room_number = 0;
   cout << "Select the room" << endl;
-  for (int i = 1; i <= Rooms.size(); i++) {
+  for (int i = 1; i <= Rooms->size(); i++) {
     cout << "Room " << i << endl;
   }
-  cin >> Num;
-  return Num;
+  cin >> room_number;
+
+  if (!isInRange(room_number, Rooms->size())) {
+    cout << "Room not in range" << endl;
+    return;
+  }
+  Room room = (*Rooms)[room_number];
+
+  int number_of_devices = 0;
+  cout << "Enter the number of devices" << endl;
+  cin >> number_of_devices;
+  int max_devices = sizeof(room.Devices) / sizeof(room.Devices[0]);
+  if (number_of_devices > max_devices) {
+    cout << "Max number of devices is " << max_devices;
+    return;
+  }
+
+  cout << "Enter the power rating for each device" << endl;
+  for (int i = 0; i < number_of_devices; i++) {
+    int power = 0;
+    cin >> power;
+    (*Rooms)[room_number].Devices[i].PowerConsumption = power;
+    cout << "power for device number: " << i << " = " << power << endl;
+  }
+  // Rooms[Num].Devices
 }
