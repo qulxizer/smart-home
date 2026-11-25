@@ -1,11 +1,12 @@
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 using namespace std;
 
 struct Device {
-  string Name;
+  string ID;
   bool Status;
   int PowerConsumption;
 };
@@ -22,43 +23,52 @@ bool isInRange(int choice, int max) {
   return false;
 }
 
+int getInt() {
+  int value;
+  while (!(cin >> value)) {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Invalid input, enter a number: ";
+  }
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  return value;
+}
+
+void clearCout() { std::cout << "\033[2J\033[H" << std::flush; }
+
 int MainMenu();
-int EnterRoomNumber();
+int GetRoomCount();
 bool Authenticate_User();
-int SettingsMenu();
+void SettingsMenu(vector<Room> Rooms);
 void InitializeMenu(vector<Room> Rooms);
 int ModeSelectionMenu();
 void SelectRoom(vector<Room> *Rooms);
 
 void App() {
-
+  clearCout();
   vector<Room> Rooms = {};
-
   int choice = MainMenu();
-  if (choice < 1 || choice > 4) {
+
+  if (!isInRange(choice, 4)) {
     cout << "Please select a choice between 1-4" << endl;
-    return;
+    App();
   }
-  if (choice == 1) {
+  switch (choice) {
+  case 1:
     if (Authenticate_User() == false) {
       cout << "Unable to authenticate credentials This is possibly due to "
-              "incorrect entry of password";
+              "incorrect entry of password"
+           << endl;
       App();
     }
-    // User is authed
-
-    choice = SettingsMenu();
-    if (choice == 1 || choice == 2) {
-      InitializeMenu(Rooms);
-    }
-    if (choice == 3) {
-      choice = ModeSelectionMenu();
-    }
-    if (choice == 4) {
-      App();
-    }
-  }
-  if (choice == 2) {
+    SettingsMenu(Rooms);
+    break;
+  case 2:
+    break;
+  case 3:
+    break;
+  case 4:
+    break;
   }
 }
 int main() {
@@ -67,6 +77,7 @@ int main() {
 }
 
 int MainMenu() {
+  clearCout();
   int choice = 0;
   cout << "Welcome to mySmart Home" << endl;
   cout << "Main Menu:" << endl;
@@ -79,37 +90,52 @@ int MainMenu() {
   std::strftime(buf, sizeof(buf), "%-m/%-d/%Y\n%-I:%M %p",
                 std::localtime(&now));
   std::cout << buf << endl;
-  cin >> choice;
+  choice = getInt();
   return choice;
 }
 
 bool Authenticate_User() {
+  clearCout();
   int password = 0;
-  cout << "Enter Password" << endl;
-  cin >> password;
-  for (int i = 2; i > 0; i--) {
+  cout << "Enter Password:" << endl;
+  for (int i = 3; i > 0; i--) {
+    password = getInt();
     if (password == 5680) {
       return true;
     }
-    cout << "Incorrect Password " << "'" << i << "'" << " attempts"
+    cout << "Incorrect Password " << "'" << i - 1 << "'" << " attempts"
          << " remaining" << endl;
-
-    cin >> password;
   }
 
   return false;
 }
 
-int SettingsMenu() {
-  int choice = 0;
-  cout << "Settings Menu" << endl;
-  cout << "Press" << endl;
-  cout << "1. Initialize the system" << endl;
-  cout << "2. Update the features" << endl;
-  cout << "3. Select modes" << endl;
-  cout << "4. Exit" << endl;
-  cin >> choice;
-  return choice;
+void SettingsMenu(vector<Room> rooms) {
+  while (true) {
+    clearCout();
+    int choice = 0;
+    cout << "Settings Menu" << endl;
+    cout << "Press" << endl;
+    cout << "1. Initialize the system" << endl;
+    cout << "2. Update the features" << endl;
+    cout << "3. Select modes" << endl;
+    cout << "4. Exit" << endl;
+    choice = getInt();
+
+    switch (choice) {
+    case 1:
+      InitializeMenu(rooms);
+      break;
+    case 2:
+      InitializeMenu(rooms);
+      break;
+    case 3:
+      choice = ModeSelectionMenu();
+      break;
+    case 4:
+      return;
+    }
+  }
 }
 
 int ModeSelectionMenu() {
@@ -119,11 +145,20 @@ int ModeSelectionMenu() {
   cout << "1. Manual Mode" << endl;
   cout << "2. Timer Mode" << endl;
   cout << "3. Exit" << endl;
-  cin >> choice;
+  choice = getInt();
   return choice;
 }
 
-void InitializeMenu(vector<Room> Rooms) {
+// Return the number of rooms
+int GetRoomCount() {
+  int Num;
+  cout << "Enter the number of rooms" << endl;
+  Num = getInt();
+  return Num;
+}
+
+void InitializeMenu(vector<Room> rooms) {
+  clearCout();
   int choice = 0;
   while (choice != 3) {
     cout << "Mode Initialize Menu" << endl;
@@ -131,80 +166,64 @@ void InitializeMenu(vector<Room> Rooms) {
     cout << "1. Add number of rooms" << endl;
     cout << "2. Add device" << endl;
     cout << "3. Exit" << endl;
-    cin >> choice;
-    if (choice == 1) {
-      Rooms.clear();
-      int NRooms = EnterRoomNumber();
+    choice = getInt();
+    switch (choice) {
+    case 1: {
+      rooms.clear();
+      int NRooms = GetRoomCount();
       for (int i = 0; i < NRooms; i++) {
         Room room = {};
         room.ID = i;
-        Rooms.push_back(room);
+        rooms.push_back(room);
       }
+      break;
     }
-    if (choice == 2) {
-      SelectRoom(&Rooms);
-      // cout << room;
-    }
-
-    if (choice == 3) {
-      for (auto i : Rooms)
-        cout << i.Devices->PowerConsumption << " ";
-      SelectRoom(&Rooms);
-      // cout << room;
+    case 2:
+      SelectRoom(&rooms);
+      break;
+    case 3:
+      return;
+    default:
+      cout << "incorrect choice" << endl;
+      return;
     }
   }
 }
-// Return the number of rooms
-int EnterRoomNumber() {
-  int Num;
-  cout << "Enter the number of rooms" << endl;
-  cin >> Num;
-  return Num;
-}
 
-int EnterNumberOfDevices() {
-  int Num;
-  cout << "Enter the number of devices" << endl;
-  cin >> Num;
-  return Num;
-}
-
-int EnterDevice() {
-  int Num;
-  cout << "Enter the number of rooms" << endl;
-  cin >> Num;
-  return Num;
-}
-
-void SelectRoom(vector<Room> *Rooms) {
+void SelectRoom(vector<Room> *rooms) {
+  clearCout();
+  if (rooms->size() < 1) {
+    cout << "Please add rooms first" << endl;
+    return;
+  }
   int room_number = 0;
   cout << "Select the room" << endl;
-  for (int i = 1; i <= Rooms->size(); i++) {
-    cout << "Room " << i << endl;
+  for (int i = 1; i <= rooms->size(); i++) {
+    cout << "- Room " << i << endl;
   }
-  cin >> room_number;
+  room_number = getInt();
 
-  if (!isInRange(room_number, Rooms->size())) {
+  if (!isInRange(room_number, rooms->size())) {
     cout << "Room not in range" << endl;
     return;
   }
-  Room room = (*Rooms)[room_number];
+  Room room = (*rooms)[room_number];
 
   int number_of_devices = 0;
   cout << "Enter the number of devices" << endl;
-  cin >> number_of_devices;
+
+  number_of_devices = getInt();
   int max_devices = sizeof(room.Devices) / sizeof(room.Devices[0]);
   if (number_of_devices > max_devices) {
-    cout << "Max number of devices is " << max_devices;
+    cout << "Max number of devices is " << max_devices << endl;
     return;
   }
 
   cout << "Enter the power rating for each device" << endl;
   for (int i = 0; i < number_of_devices; i++) {
     int power = 0;
-    cin >> power;
-    (*Rooms)[room_number].Devices[i].PowerConsumption = power;
-    cout << "power for device number: " << i << " = " << power << endl;
+    power = getInt();
+    (*rooms)[room_number].Devices[i].PowerConsumption = power;
+    cout << "power for device number " << i + 1 << " = " << power << endl;
   }
-  // Rooms[Num].Devices
 }
