@@ -1,6 +1,8 @@
+#include <chrono>
 #include <ctime>
 #include <iostream>
 #include <limits>
+#include <thread>
 #include <vector>
 
 using namespace std;
@@ -17,7 +19,7 @@ struct Room {
 };
 
 bool isInRange(int choice, int max) {
-  if (choice > 0 || choice < max) {
+  if (choice > 0 && choice < max) {
     return true;
   }
   return false;
@@ -45,14 +47,15 @@ int ModeSelectionMenu();
 void SelectRoom(vector<Room> *Rooms);
 
 void App() {
-  clearCout();
   vector<Room> Rooms = {};
   int choice = MainMenu();
 
   if (!isInRange(choice, 4)) {
     cout << "Please select a choice between 1-4" << endl;
+    this_thread::sleep_for(chrono::seconds(3));
     App();
   }
+
   switch (choice) {
   case 1:
     if (Authenticate_User() == false) {
